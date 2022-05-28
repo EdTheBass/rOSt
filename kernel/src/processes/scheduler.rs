@@ -4,6 +4,7 @@ use alloc::{rc::Rc, vec::Vec};
 
 use super::{Process, Thread};
 use crate::processes::dispatcher::run_thread;
+use crate::processes::thread::State;
 
 static mut SCHEDULER: Scheduler = Scheduler::new();
 
@@ -57,7 +58,9 @@ impl Scheduler {
 
     /// Adds the thread to the queue so it can be ran later.
     pub fn add_thread(&mut self, thread: Rc<RefCell<Thread>>) {
-        self.threads.push(thread);
+        if thread.as_ref().borrow_mut().state == State::Running {
+            self.threads.push(thread);
+        }
     }
 
     /// Returns the thread that should be ran next.

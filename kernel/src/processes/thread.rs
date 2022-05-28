@@ -10,6 +10,14 @@ use super::scheduler::add_thread;
 use super::RegistersState;
 
 #[derive(Debug)]
+#[derive(PartialEq)]
+pub enum State {
+    Sleeping(u64),
+    NotStarted,
+    Running,
+}
+
+#[derive(Debug)]
 pub struct Thread {
     /// The thread's ID.
     pub id: u64,
@@ -23,6 +31,8 @@ pub struct Thread {
     pub last_tick: u64,
     /// The process the thread is running for.
     pub process: Rc<RefCell<Process>>,
+    /// The state of the thread and how long it should sleep for.
+    pub state: State,
 }
 
 impl Thread {
@@ -49,6 +59,7 @@ impl Thread {
                 0x200,
                 VirtAddr::new(stack_pointer),
             ),
+            state: State::Running,
         };
         let rc = Rc::new(RefCell::new(thread));
         process.borrow_mut().threads.push(rc.clone());
